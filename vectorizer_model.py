@@ -75,7 +75,7 @@ class by_count_vectorizer:
         mnb = MultinomialNB()
         mnb.fit(X_train,Y_train)
 #        print("Accuracy by f1 score ", f1_score(y_cross,y_pred)*100)
-        file = open(model_path+'/classifier.pkl','wb')
+        file = open(model_path,'wb')
         pickle.dump(pre_process,file)
         pickle.dump(cv,file)
         pickle.dump(mnb,file)
