@@ -27,55 +27,26 @@ import pandas as pd
 import sys
 import os
 
-
 # In[4]:
 
-
 a = sys.stdin.read()
-folder ,model_path , train , test = a.split()
-
+train,model_path = a.split()
 
 # In[162]:
 
-
-train_df =pd.read_csv(folder+"/"+train)
-test_df = pd.read_csv(folder+"/"+test)
-
+train_df =pd.read_csv(train)
 
 # In[163]:
 
-
-train_df.head()
-
-
-# In[173]:
-
-
-test_df.head(10)
-
-
-# In[165]:
-
+# train_df.head()
 
 train_df=train_df[["label","tweet"]]
 
-
 # In[166]:
 
+#train_df.head(3)
 
-train_df.head(3)
-
-
-# In[167]:
-
-
-test_df.head(3)
-
-
-# In[168]:
-
-
-# Removes stopwords and storing only storing alpabets and numbers and imp symbols also lemamtizing to decrease number of features
+# Removes stopwords and storing only storing alphabets and numbers and imp symbols also lemamtizing to decrease number of features
 class Preprocessor:
 
     def preprocessor(self,doc):
@@ -83,51 +54,8 @@ class Preprocessor:
         preprop = lambda x: ' '.join([lm.lemmatize(word) for word in x.split() if word not in stopwords.words('english') and not(word.isalpha() or word.startswith('@') or word.isnumeric() or (word in ['!','.',','])) ])
         return doc.apply(preprop)
 
-
 # In[150]:
-
-
 pre_process = Preprocessor()
-
-
-# In[151]:
-
-
-# train_df["tweet"] = pre_process.preprocessor(train_df["tweet"])
-
-
-# In[152]:
-
-
-# test_df['tweet']=pre_process.preprocessor(test_df['tweet'])
-
-
-# In[153]:
-
-
-# train_df.head(2)
-
-
-# In[154]:
-
-
-# test_df.head(2)
-
-
-# In[155]:
-
-
-# print(train_df.shape,test_df.shape)
-
-
-# In[156]:
-
-
-# storing preprocessor object
-
-
-# In[169]:
-
 
 class by_count_vectorizer:
     
@@ -140,16 +68,13 @@ class by_count_vectorizer:
     def classify_demo(self,train_df,test_df):
         pre_process = Preprocessor()
         train_df["tweet"] = pre_process.preprocessor(train_df["tweet"])
-        test_df['tweet']=pre_process.preprocessor(test_df['tweet'])
         cv = CountVectorizer()
         X_train,Y_train = train_df["tweet"],train_df["label"]
-        X_train = cv.fit_transform(X_train)
         print("to array:\n",X_train.toarray())
         x_cross = test_df["tweet"]   
         mnb = MultinomialNB()
         mnb.fit(X_train,Y_train)
-        y_pred = mnb.predict(x_cross)
-        print("Accuracy by f1 score ", f1_score(y_cross,y_pred)*100)
+#        print("Accuracy by f1 score ", f1_score(y_cross,y_pred)*100)
         file = open(model_path+'/classifier.pkl','wb')
         pickle.dump(pre_process,file)
         pickle.dump(cv,file)
@@ -163,15 +88,7 @@ class by_count_vectorizer:
 #         feature = cv.transform(["The movie was pleasant"])
 #         self.check_result(feature,mnb)
 
-
-# In[170]:
-
-
 cv_classifier = by_count_vectorizer()
-
-
-# In[5]:
-
 
 cv_classifier.classify_demo(train_df,test_df)
 
