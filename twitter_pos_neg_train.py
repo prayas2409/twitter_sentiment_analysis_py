@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-#gs8685, 
+# In[1]:
+
 
 import nltk
 # tokenizing in various ways
@@ -27,26 +27,54 @@ import pandas as pd
 import sys
 import os
 
-# In[4]:
+
+# In[ ]:
+
 
 a = sys.stdin.read()
-train,model_path = a.split()
 
-# In[162]:
 
-train_df =pd.read_csv(train)
+# In[2]:
 
-# In[163]:
 
-# train_df.head()
+train_data, model_path = a.split()
 
-train_df=train_df[["label","tweet"]]
 
-# In[166]:
+# In[3]:
 
-#train_df.head(3)
 
-# Removes stopwords and storing only storing alphabets and numbers and imp symbols also lemamtizing to decrease number of features
+# train_data = "Data/Sentiment Analysis Dataset.csv"
+# model_path = "model_pickle/classifier.pkl"
+
+
+# In[4]:
+
+
+train_df =pd.read_csv(train_data)
+
+
+# In[5]:
+
+
+train_df.head()
+
+
+# In[6]:
+
+
+train_df=train_df[["Sentiment","SentimentText"]]
+
+
+# In[7]:
+
+
+train_df.head(3)
+
+
+# In[8]:
+
+
+# Removes stopwords and storing only storing alpabets and numbers and imp symbols also lemamtizing to decrease number of features
 class Preprocessor:
 
     def preprocessor(self,doc):
@@ -54,8 +82,52 @@ class Preprocessor:
         preprop = lambda x: ' '.join([lm.lemmatize(word) for word in x.split() if word not in stopwords.words('english') and not(word.isalpha() or word.startswith('@') or word.isnumeric() or (word in ['!','.',','])) ])
         return doc.apply(preprop)
 
-# In[150]:
+
+# In[9]:
+
+
 pre_process = Preprocessor()
+
+
+# In[10]:
+
+
+train_df= train_df.dropna()
+
+
+# In[11]:
+
+
+train_df.isnull().sum()
+
+
+# In[12]:
+
+
+train_df = train_df.drop_duplicates()
+
+
+# In[13]:
+
+
+train_df = train_df.drop(train_df[(train_df["SentimentText"]=="&quot")].index.values, axis=0) 
+# Delete all rows with label "Ireland"
+
+
+# In[14]:
+
+
+train_df.shape[0]
+
+
+# In[15]:
+
+
+# storing preprocessor object
+
+
+# In[16]:
+
 
 class by_count_vectorizer:
     
@@ -65,15 +137,22 @@ class by_count_vectorizer:
         else:
             print('Hate')
     
+    def accuracy(self,Y_actual,Y_pred):
+        correct = (Y_actual==Y_pred).sum()
+        return (correct/y_actual.shape[0])*100
+    
     def classify_demo(self,train_df):
         pre_process = Preprocessor()
-        train_df["tweet"] = pre_process.preprocessor(train_df["tweet"])
+        train_df["SentimentText"] = pre_process.preprocessor(train_df["SentimentText"])
         cv = CountVectorizer()
-        X_train,Y_train = train_df["tweet"],train_df["label"]
-        print("to array:\n",X_train.toarray()) 
+        X_train,Y_train = train_df["SentimentText"],train_df["Sentiment"]
+        X_train,X_cross,Y_train,Y_cross = train_test_split(X_train,Y_train,test_size=0.1)
+        X_train = cv.fit_transform(X_train)
+#         print("to array:\n",X_train.toarray())
         mnb = MultinomialNB()
         mnb.fit(X_train,Y_train)
-#        print("Accuracy by f1 score ", f1_score(y_cross,y_pred)*100)
+        y_pred = mnb.predict(X_cross)
+        print("Accuracy: ",self.accuracy(Y_cross,y_pred))
         file = open(model_path,'wb')
         pickle.dump(pre_process,file)
         pickle.dump(cv,file)
@@ -87,7 +166,15 @@ class by_count_vectorizer:
 #         feature = cv.transform(["The movie was pleasant"])
 #         self.check_result(feature,mnb)
 
+
+# In[17]:
+
+
 cv_classifier = by_count_vectorizer()
+
+
+# In[ ]:
+
 
 cv_classifier.classify_demo(train_df)
 
