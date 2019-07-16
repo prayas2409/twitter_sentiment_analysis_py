@@ -40,38 +40,38 @@ a = sys.stdin.read()
 train_data, model_path = a.split()
 
 
-# In[3]:
+# In[7]:
 
 
-# train_data = "Data/Sentiment Analysis Dataset.csv"
-# model_path = "model_pickle/classifier.pkl"
+train_data = "Data/train.csv"
+model_path = "model_pickle/classifier.pkl"
 
 
-# In[4]:
+# In[9]:
 
 
 train_df =pd.read_csv(train_data)
 
 
-# In[5]:
+# In[10]:
 
 
 train_df.head()
 
 
-# In[6]:
+# In[11]:
 
 
-train_df=train_df[["Sentiment","SentimentText"]]
+train_df=train_df[["label","tweet"]]
 
 
-# In[7]:
+# In[12]:
 
 
 train_df.head(3)
 
 
-# In[8]:
+# In[13]:
 
 
 # Removes stopwords and storing only storing alpabets and numbers and imp symbols also lemamtizing to decrease number of features
@@ -83,38 +83,38 @@ class Preprocessor:
         return doc.apply(preprop)
 
 
-# In[9]:
+# In[14]:
 
 
 pre_process = Preprocessor()
 
 
-# In[10]:
+# In[15]:
 
 
 train_df= train_df.dropna()
 
 
-# In[11]:
+# In[16]:
 
 
 train_df.isnull().sum()
 
 
-# In[12]:
+# In[17]:
 
 
 train_df = train_df.drop_duplicates()
 
 
-# In[13]:
+# In[18]:
 
 
-train_df = train_df.drop(train_df[(train_df["SentimentText"]=="&quot")].index.values, axis=0) 
+train_df = train_df.drop(train_df[(train_df["tweet"]=="&quot")].index.values, axis=0) 
 # Delete all rows with label "Ireland"
 
 
-# In[14]:
+# In[19]:
 
 
 train_df.shape[0]
@@ -143,9 +143,9 @@ class by_count_vectorizer:
     
     def classify_demo(self,train_df):
         pre_process = Preprocessor()
-        train_df["SentimentText"] = pre_process.preprocessor(train_df["SentimentText"])
+        train_df["tweet"] = pre_process.preprocessor(train_df["tweet"])
         cv = CountVectorizer()
-        X_train,Y_train = train_df["SentimentText"],train_df["Sentiment"]
+        X_train,Y_train = train_df["tweet"],train_df["label"]
         X_train,X_cross,Y_train,Y_cross = train_test_split(X_train,Y_train,test_size=0.1)
         X_train = cv.fit_transform(X_train)
 #         print("to array:\n",X_train.toarray())
