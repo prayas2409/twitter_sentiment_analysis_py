@@ -3,7 +3,6 @@
 
 # In[1]:
 
-
 import nltk
 # tokenizing in various ways
 from nltk.tokenize import word_tokenize
@@ -32,7 +31,8 @@ import os
 
 
 a = sys.stdin.read()
-
+if a=="":
+    sys.exit()
 
 # In[2]:
 
@@ -43,14 +43,14 @@ train_data, model_path = a.split()
 # In[7]:
 
 
-train_data = "Data/train.csv"
-model_path = "model_pickle/classifier.pkl"
+# train_data = "Data/train.csv"
+# model_path = "model_pickle/classifier.pkl"
 
 
 # In[9]:
 
 
-train_df =pd.read_csv(train_data)
+train_df =pd.read_csv(train_data, encoding='utf-8')
 
 
 # In[10]:
@@ -137,9 +137,9 @@ class by_count_vectorizer:
         else:
             print('Hate')
     
-    def accuracy(self,Y_actual,Y_pred):
+    def accuracy(Y_actual,Y_pred):
         correct = (Y_actual==Y_pred).sum()
-        return (correct/y_actual.shape[0])*100
+        return (correct/Y_actual.shape[0])*100
     
     def classify_demo(self,train_df):
         pre_process = Preprocessor()
@@ -151,15 +151,15 @@ class by_count_vectorizer:
 #         print("to array:\n",X_train.toarray())
         mnb = MultinomialNB()
         mnb.fit(X_train,Y_train)
-        y_pred = mnb.predict(X_cross)
-        print("Accuracy: ",self.accuracy(Y_cross,y_pred))
+        y_pred = mnb.predict(cv.transform(X_cross))
+        print("Accuracy: ",by_count_vectorizer.accuracy(Y_cross,y_pred))
         file = open(model_path,'wb')
         pickle.dump(pre_process,file)
         pickle.dump(cv,file)
         pickle.dump(mnb,file)
         file.close()
         try:
-            sys.stdout.write(pred)
+            sys.stdout.write(model_path)
         except Exception as e:
             print("Cannot return the path beacause ",e)
 
@@ -177,4 +177,3 @@ cv_classifier = by_count_vectorizer()
 
 
 cv_classifier.classify_demo(train_df)
-
